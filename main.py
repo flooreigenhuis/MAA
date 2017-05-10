@@ -110,14 +110,11 @@ def move(player, A, playerLoc, height, width, epsilon,  radius = 2):
             temp.append(loc-1*(r+1)+100*(r+1))
             temp.append(loc-1*(r+1)+100*(r+1))
         print(temp)
-        # if newLoc in temp:
-        #     payoffs[player - 1][A.index(move)] += -1
-        #     return
-    if newLoc in playerLoc.values(): #if someone else has that location NOTE: NOW ONLY CHECK IF SOMEONE IS THAT LOCATION; HAVE A RADIUS AROUND IT?
-        payoffs[player-1][A.index(move)] += -1 #add a payoff of -1
-    else:
-        payoffs[player-1][A.index(move)] += 2
-        playerLoc[player] = newLoc
+        if newLoc in temp:
+            payoffs[player - 1][A.index(move)] += -1
+            return
+    payoffs[player-1][A.index(move)] += 2
+    playerLoc[player] = newLoc
     return
 
 width = 5
