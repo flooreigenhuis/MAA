@@ -1,37 +1,39 @@
-#TODO: now only checks if the new location of the player is the location, but need to check if it is in a radius around another player 
-#make move function better and more readable (and the rest as well)
-#some way to track how many times the players played a particular move -> now stored in a 2 dim array and make some nice graphs out of it
+#TODO: now only checks if the new location of the player is the location, but need to check if it is in a radius around another player -->
+#TODO: make move function better and more readable (and the rest as well)
+#some way to track how many times the players played a particular move -> now stored in a 2 dim array and make some nice graphs out of it; Done
 
 import random
 import numpy as np
+import matplotlib.pyplot as plt
 
-#get a list of the possible locations 
+
+# get a list of the possible locations
 def getLocations (width, height):
     loc = []
     for h in range (1, height+1):
         for w in range (1, width +1):
             loc.append((h*100) + w)
-    return loc;
+    return loc
 
-#get the starting locations of the players
+# get the starting locations of the players
 def getStartLoc(loc, players):
     playerLoc = {}
     for p in range (1, players+1):
         playerLoc[p] = random.choice(loc)
         loc.remove(playerLoc[p]) #so players don't get the same location 
-    return playerLoc;
+    return playerLoc
 
-#move function
-def move(player, A, playerLoc, height, width, epsilon):
+# move function
+def move(player, A, playerLoc, height, width, epsilon,  radius = 2):
     currentLoc = playerLoc[player]
    
-    #explore if random number is smaller/equal to epsilon and if the payoffs for the player are all 0 (so it's the first iteration)
+    #explore if random number is smaller/equal to epsilon or if the payoffs for the player are all 0 (so it's the first iteration)
     if random.random() <= epsilon or (np.count_nonzero(payoffs[player-1]) == 0): 
         move = random.choice(A)
-        print 'EXPLORE';
+        # print('EXPLORE')
     else:
         move = A[payoffs[player-1].index(max(payoffs[player-1]))] #get the index of the move that caused the max payoff and play that action
-        print 'EXPLOIT';
+        # print('EXPLOIT')
     if move == 0: #straight up 
         if currentLoc < 201: #if you're at the top of the field, move up means appear at the bottom
             newLoc = currentLoc + ((height-1)*100)
@@ -93,16 +95,31 @@ def move(player, A, playerLoc, height, width, epsilon):
         else: 
             newLoc = currentLoc - 100 -1
             
-    print 'player: ' + str(player) + " " + 'current location: ' +  str(currentLoc) + " " + 'move: ' +  str(move) + " " + 'new location: ' +  str(newLoc) + "\n"
-    plays[player-1][A.index(move)] += 1; #add move of player to the array
+    # print( 'player: ' + str(player) + " " + 'current location: ' +  str(currentLoc) + " " + 'move: ' +  str(move) + " " + 'new location: ' +  str(newLoc) + "\n")
+    plays[player-1][A.index(move)] += 1 #add move of player to the array
+    flag = False
+    for loc in playerLoc.values():
+        temp = [loc]
+        for r in range(radius):
+            temp.append(loc+1*(r+1))
+            temp.append(loc-1*(r+1))
+            temp.append(loc-100*(r+1))
+            temp.append(loc+100*(r+1))
+            temp.append(loc+1*(r+1)+100*(r+1))
+            temp.append(loc+1*(r+1)-100*(r+1))
+            temp.append(loc-1*(r+1)+100*(r+1))
+            temp.append(loc-1*(r+1)+100*(r+1))
+        print(temp)
+        # if newLoc in temp:
+        #     payoffs[player - 1][A.index(move)] += -1
+        #     return
     if newLoc in playerLoc.values(): #if someone else has that location NOTE: NOW ONLY CHECK IF SOMEONE IS THAT LOCATION; HAVE A RADIUS AROUND IT?
-        payoffs[player-1][A.index(move)] += -1; #add a payoff of -1
+        payoffs[player-1][A.index(move)] += -1 #add a payoff of -1
     else:
-        payoffs[player-1][A.index(move)] += 2;
+        payoffs[player-1][A.index(move)] += 2
         playerLoc[player] = newLoc
-    return;
-            
- 
+    return
+
 width = 5
 height = 5
 players = 8
@@ -112,15 +129,46 @@ A = [0, 45, 90, 135, 180, 225, 270, 315]
 payoffs = [[0 for x in range(players)] for y in range(players)] #2 dimensional array; [player][move] = total payoff for player for a particular move
 plays = [[0 for x in range(players)] for y in range(players)] #2 dimensional array; [player][move] = total times player has played a move
 epsilon = 0.1
-print loc 
-print playerLoc
-print payoffs
+average_payoffs = [[[] for x in range(players)] for y in range(players)] #2d array [move][player]
+
+
+print("loc: ")
+print(loc)
+print("Playerloc: ")
+print(playerLoc)
+print("Payoffs: ")
+print(payoffs)
+print('test')
+print(average_payoffs)
 i = 0
-while i < 100000:
+while i < 10000:
     for player in playerLoc:
         move(player, A, playerLoc, height, width, epsilon)
+    for xx in range(players):
+        for yy in range(players):
+            total_plays = plays[xx][yy]
+            if total_plays is not 0:
+                average_payoffs[xx][yy].append(payoffs[xx][yy]/plays[xx][yy])
+            else:
+                average_payoffs[xx][yy].append(payoffs[xx][yy])
     i+= 1
-    
-print playerLoc
-print payoffs  
-print plays
+
+
+print("\n")
+print("Playerloc: ")
+print(playerLoc)
+print("Payoffs: ")
+print(payoffs)
+print("Plays: ")
+print(plays)
+print("Average_payoffs ")
+#print(average_payoffs)
+
+labels = []
+for zz in range(players):
+    plt.plot(average_payoffs[zz][0])
+    labels.append('Skater: ' + str(zz+1))
+
+plt.ylabel('reward')
+plt.legend(labels, ncol=players,  loc=3, bbox_to_anchor=(0., 1.02, 1., .102), mode="expand", borderaxespad=0.)
+#plt.show()
