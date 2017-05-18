@@ -20,7 +20,7 @@ def getStartLoc(loc, players):
     playerLoc = {}
     for p in range (1, players+1):
         playerLoc[p] = random.choice(loc)
-        loc.remove(playerLoc[p]) #so players don't get the same location 
+        loc.remove(playerLoc[p]) #so players don't get the same location
     return playerLoc
 
 # move function
@@ -126,6 +126,7 @@ A = [0, 45, 90, 135, 180, 225, 270, 315]
 payoffs = [[0 for x in range(players)] for y in range(players)] #2 dimensional array; [player][move] = total payoff for player for a particular move
 plays = [[0 for x in range(players)] for y in range(players)] #2 dimensional array; [player][move] = total times player has played a move
 epsilon = 0.1
+
 average_payoffs = [[[] for x in range(players)] for y in range(players)] #2d array [move][player]
 
 
