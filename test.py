@@ -6,8 +6,8 @@ import random
 import numpy as np
 import math
 
-w = 5
-h = 5
+width = 10
+height = 10
 players = 8
 
 #field = [[0 for x in range(w)] for y in range(h)]
@@ -29,18 +29,18 @@ def getStartLoc(loc, players):
     return playerLoc
 
 def mapToInBounds(x,y):
-    if (x > w):
-        x = x % w
+    if (x > width):
+        x = x % width
     if (x < 1):
-        x = w + (x % -w)
+        x = width + (x % -width)
 
-    if (y > h):
-        y = y % h
+    if (y > height):
+        y = y % height
     if (y < 1):
-        y = h + (y % -h)
+        y = height + (y % -height)
     return x,y
 
-def move(player, A, playerLocations, width, height, epsilon, radius = 2, speed = 1):
+def move(player, A, playerLocations, width, height, epsilon, radius = 1, speed = 3):
     currentLoc = playerLocations[player]
 
     if random.random() <= epsilon or (np.count_nonzero(payoffs[player-1]) == 0):
@@ -49,27 +49,78 @@ def move(player, A, playerLocations, width, height, epsilon, radius = 2, speed =
         angle = A[payoffs[player - 1].index(max(payoffs[player - 1]))] # exploit: get the index of the move that caused the max payoff and play that action
 
     angle_rad = math.radians(angle) # convert to radians, take cos for y and sin for x value
-    x = math.sin(angle_rad) * speed
-    y = math.cos(angle_rad) * speed
+    # x = math.sin(angle_rad) * speed #zonder afronden
+    # y = math.cos(angle_rad) * speed
+
+    x = round(math.sin(angle_rad) * speed) #met afronden
+    y = round(math.cos(angle_rad) * speed)
+
+    x += currentLoc[0]
+    y += currentLoc[1]
+
+    #x,y = mapToInBounds(x,y)
+
+    newLoc = [x,y]  #@TODO: Kijken of we moeten afronden en dus met patches moeten werken, of niet?
+
+    plays[player - 1][A.index(angle)] += 3  # add move of player to the array
+
+    # if(newLoc in playerLocations.values()):
+    #     payoffs[player - 1][A.index(angle)] += -50
+    #     return
+
+    for loc in playerLocations.values():
+        if (math.pow ((x - loc[0]) , 2) + math.pow ((y - loc[1]), 2) < radius ** 2):
+            payoffs[player -1][A.index(angle)] += -50
+            return
 
     x,y = mapToInBounds(x,y)
-    currentLoc[0] += x
-    currentLoc[1] += y
+    newLoc = [x,y]
+
+    payoffs[player - 1][A.index(angle)] += 2
+    playerLocations[player] = newLoc
+    return
 
 
-
-field = getLocations(w, h)
+field = getLocations(width, height)
 playerLocations = getStartLoc(field, players)
 A = [0, 45, 90, 135, 180, 225, 270, 315]
 payoffs = [[0 for x in range(players)] for y in range(players)] #2 dimensional array; [player][move] = total payoff for player for a particular move
 plays = [[0 for x in range(players)] for y in range(players)] #2 dimensional array; [player][move] = total times player has played a move
 epsilon = 0.1
 
+average_payoffs = [[[] for x in range(players)] for y in range(players)]
 
+
+print("field: ")
 print(field)
+print("Playerloc: ")
 print(playerLocations)
-print(mapToInBounds(0,6))
+print("Payoffs: ")
+print(payoffs)
+print('test')
+print(average_payoffs)
 
+i = 0
+while i < 500000:
+    for player in playerLocations:
+        move(player, A, playerLocations, height, width, epsilon)
+    for xx in range(players):
+        for yy in range(players):
+            total_plays = plays[xx][yy]
+            if total_plays is not 0:
+                average_payoffs[xx][yy].append(payoffs[xx][yy]/plays[xx][yy])
+            else:
+                average_payoffs[xx][yy].append(payoffs[xx][yy])
+    i += 1
+
+print("\n")
+print("Playerloc: ")
+print(playerLocations)
+print("Payoffs: ")
+print(payoffs)
+print("Plays: ")
+print(plays)
+print("Average_payoffs ")
 
 #################################################
 
