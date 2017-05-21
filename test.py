@@ -41,7 +41,16 @@ def mapToInBounds(x,y):
         y = height + (y % -height)
     return x,y
 
-def move(player, A, playerLocations, width, height, epsilon, radius = 1, speed = 1):
+def radiusCheck(origin,r):
+    temp = []
+    for x in range(origin[0] - r, origin[0] + r+1):
+        for y in range(origin[1] - r, origin[1] + r+1):
+            if (math.pow ((x - origin[0]) , 2) + math.pow ((y - origin[1]), 2) <= r ** 2):
+                temp.append([x,y])
+    return temp
+
+
+def move(player, A, playerLocations, width, height, epsilon, radius = 3, speed = 2):
     currentLoc = playerLocations[player]
 
     if random.random() <= epsilon or (np.count_nonzero(payoffs[player-1]) == 0):
@@ -59,25 +68,28 @@ def move(player, A, playerLocations, width, height, epsilon, radius = 1, speed =
     x += currentLoc[0]
     y += currentLoc[1]
 
-    #x,y = mapToInBounds(x,y)
+    x,y = mapToInBounds(x,y)
 
     newLoc = [x,y]  #@TODO: Kijken of we moeten afronden en dus met patches moeten werken, of niet?
 
-    plays[player - 1][A.index(angle)] += 3  # add move of player to the array
+    plays[player - 1][A.index(angle)] += 1  # add move of player to the array
 
     # if(newLoc in playerLocations.values()):
     #     payoffs[player - 1][A.index(angle)] += -50
     #     return
 
+
     for loc in playerLocations.values():
-        if (math.pow ((x - loc[0]) , 2) + math.pow ((y - loc[1]), 2) < radius ** 2):
+        coords = radiusCheck(loc, radius)
+        for i in range(len(coords)):
+            coords[i][0], coords[i][1] = mapToInBounds(coords[i][0], coords[i][1])
+        if newLoc in coords:
             payoffs[player -1][A.index(angle)] += -50
             #print('Collision; didnt move')
             return
 
-
-    x,y = mapToInBounds(x,y)
-    newLoc = [x,y]
+    #x,y = mapToInBounds(x,y)
+    #newLoc = [x,y]
 
 #    print(player)
 #    print('current location: ')
