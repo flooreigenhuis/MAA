@@ -5,6 +5,7 @@
 import random
 import numpy as np
 import math
+import matplotlib.pyplot as plt
 
 width = 10
 height = 10
@@ -40,7 +41,7 @@ def mapToInBounds(x,y):
         y = height + (y % -height)
     return x,y
 
-def move(player, A, playerLocations, width, height, epsilon, radius = 1, speed = 3):
+def move(player, A, playerLocations, width, height, epsilon, radius = 1, speed = 1):
     currentLoc = playerLocations[player]
 
     if random.random() <= epsilon or (np.count_nonzero(payoffs[player-1]) == 0):
@@ -49,11 +50,11 @@ def move(player, A, playerLocations, width, height, epsilon, radius = 1, speed =
         angle = A[payoffs[player - 1].index(max(payoffs[player - 1]))] # exploit: get the index of the move that caused the max payoff and play that action
 
     angle_rad = math.radians(angle) # convert to radians, take cos for y and sin for x value
-    # x = math.sin(angle_rad) * speed #zonder afronden
-    # y = math.cos(angle_rad) * speed
+    #x = math.cos(angle_rad) * speed #zonder afronden
+    #y = (math.sin(angle_rad) * -1) * speed
 
-    x = round(math.sin(angle_rad) * speed) #met afronden
-    y = round(math.cos(angle_rad) * speed)
+    x = round(math.cos(angle_rad) * speed) #met afronden
+    y = round((math.sin(angle_rad) * -1) * speed)
 
     x += currentLoc[0]
     y += currentLoc[1]
@@ -71,10 +72,20 @@ def move(player, A, playerLocations, width, height, epsilon, radius = 1, speed =
     for loc in playerLocations.values():
         if (math.pow ((x - loc[0]) , 2) + math.pow ((y - loc[1]), 2) < radius ** 2):
             payoffs[player -1][A.index(angle)] += -50
+            #print('Collision; didnt move')
             return
+
 
     x,y = mapToInBounds(x,y)
     newLoc = [x,y]
+
+#    print(player)
+#    print('current location: ')
+#    print(currentLoc)
+#    print ('move: ')
+#    print(angle)
+#    print('new location: ')
+#    print(newLoc)
 
     payoffs[player - 1][A.index(angle)] += 2
     playerLocations[player] = newLoc
@@ -101,7 +112,7 @@ print('test')
 print(average_payoffs)
 
 i = 0
-while i < 500000:
+while i < 5000000:
     for player in playerLocations:
         move(player, A, playerLocations, height, width, epsilon)
     for xx in range(players):
@@ -120,7 +131,16 @@ print("Payoffs: ")
 print(payoffs)
 print("Plays: ")
 print(plays)
-print("Average_payoffs ")
+
+#
+#labels = []
+#for zz in range(players):
+#    plt.plot(average_payoffs[zz][0])
+#    labels.append('Skater: ' + str(zz+1))
+#
+#plt.ylabel('reward')
+#plt.legend(labels, ncol=players,  loc=3, bbox_to_anchor=(0., 1.02, 1., .102), mode="expand", borderaxespad=0.)
+#plt.show()
 
 #################################################
 
