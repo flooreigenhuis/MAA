@@ -50,7 +50,7 @@ def radiusCheck(origin,r):
     return temp
 
 
-def move(player, A, playerLocations, width, height, epsilon, radius = 3, speed = 2):
+def move(player, A, playerLocations, width, height, epsilon, radius = 1, speed = 3):
     currentLoc = playerLocations[player]
 
     if random.random() <= epsilon or (np.count_nonzero(payoffs[player-1]) == 0):
@@ -84,7 +84,7 @@ def move(player, A, playerLocations, width, height, epsilon, radius = 3, speed =
         for i in range(len(coords)):
             coords[i][0], coords[i][1] = mapToInBounds(coords[i][0], coords[i][1])
         if newLoc in coords:
-            payoffs[player -1][A.index(angle)] += -50
+            payoffs[player -1][A.index(angle)] += -5
             #print('Collision; didnt move')
             return
 
@@ -99,7 +99,7 @@ def move(player, A, playerLocations, width, height, epsilon, radius = 3, speed =
 #    print('new location: ')
 #    print(newLoc)
 
-    payoffs[player - 1][A.index(angle)] += 2
+    payoffs[player - 1][A.index(angle)] += 1
     playerLocations[player] = newLoc
     return
 
@@ -110,9 +110,9 @@ A = [0, 45, 90, 135, 180, 225, 270, 315]
 payoffs = [[0 for x in range(players)] for y in range(players)] #2 dimensional array; [player][move] = total payoff for player for a particular move
 plays = [[0 for x in range(players)] for y in range(players)] #2 dimensional array; [player][move] = total times player has played a move
 epsilon = 0.1
-
-average_payoffs = [[[] for x in range(players)] for y in range(players)]
-
+#delta = 1
+average_payoffs = [[[] for x in range(players)] for y in range(players)] #2d array, but now for every timestep
+test = [[] for x in range(players)]
 
 print("field: ")
 print(field)
@@ -121,19 +121,31 @@ print(playerLocations)
 print("Payoffs: ")
 print(payoffs)
 print('test')
-print(average_payoffs)
+print(test)
 
 i = 0
-while i < 5000000:
+while i < 100000:
+    if(i % 1000 == 0):
+        #delta+=1
+        print(i)
+        print(payoffs)
     for player in playerLocations:
         move(player, A, playerLocations, height, width, epsilon)
-    for xx in range(players):
-        for yy in range(players):
-            total_plays = plays[xx][yy]
-            if total_plays is not 0:
-                average_payoffs[xx][yy].append(payoffs[xx][yy]/plays[xx][yy])
-            else:
-                average_payoffs[xx][yy].append(payoffs[xx][yy])
+
+    for n in range(players): #for each angle
+        average = 0
+        for m in range(players): #for each player
+            average += payoffs[m][n]      # add [player][move] payoff to average
+        average = round(average/players)
+        test[n].append(average)
+    #     for m in range(players):
+    #         total_plays = plays[n][m]
+    #         if total_plays is not 0:
+    #             #average_payoffs[n][m].append(payoffs[n][m]/plays[n][m])
+    #             # print(average_payoffs[xx][yy])
+    #         else:
+    #             #average_payoffs[n][m].append(payoffs[n][m])
+    #             # print(average_payoffs[xx][yy])
     i += 1
 
 print("\n")
@@ -144,15 +156,19 @@ print(payoffs)
 print("Plays: ")
 print(plays)
 
-#
-#labels = []
-#for zz in range(players):
-#    plt.plot(average_payoffs[zz][0])
-#    labels.append('Skater: ' + str(zz+1))
-#
-#plt.ylabel('reward')
-#plt.legend(labels, ncol=players,  loc=3, bbox_to_anchor=(0., 1.02, 1., .102), mode="expand", borderaxespad=0.)
-#plt.show()
+
+labels = []
+# for i in range(players):
+#     plt.plot(average_payoffs[i][0])
+#     labels.append('Skater: ' + str(i+1))
+
+for i in range(players):
+    plt.plot(test[i])
+    labels.append('Angle: ' + str(A[i]) + '°')
+
+plt.ylabel('Average payoff over all players at time t')
+plt.legend(labels, ncol=players,  loc=3, bbox_to_anchor=(0., 1.02, 1., .102), mode="expand", borderaxespad=0.)
+plt.show()
 
 #################################################
 
