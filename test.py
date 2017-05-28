@@ -165,7 +165,7 @@ labels = []
 #     plt.plot(average_payoffs[i][0])
 #     labels.append('Skater: ' + str(i+1))
 
-for i in range(players):
+for i in range(len(A)):
     plt.plot(test[i])
     labels.append('Angle: ' + str(A[i]) + '°'.decode("utf8"))
 
