@@ -1,15 +1,18 @@
+# -*- coding: utf-8 -*-
+
 ### Zo kunnen we een veld maken van zo groot als we willen, ik kom anders in de knoei met 201 als je naar links gaat.
 ### Dan wordt het 200, 199, 198, ... Dan denkt die dat die op de vorige rij is door 1xx. Denk dat we het zo veel makkelijker maken voor onszelf.
 # @autor "Peter Markotic, Floor Eigenhuis"
+
 
 import random
 import numpy as np
 import math
 import matplotlib.pyplot as plt
 
-width = 10
-height = 10
-players = 8
+width = 30
+height = 30
+players = 30
 
 #field = [[0 for x in range(w)] for y in range(h)]
 
@@ -43,8 +46,8 @@ def mapToInBounds(x,y):
 
 def radiusCheck(origin,r):
     temp = []
-    for x in range(origin[0] - r, origin[0] + r+1):
-        for y in range(origin[1] - r, origin[1] + r+1):
+    for x in range(int(origin[0] - r), int(origin[0] + r+1)):
+        for y in range(int(origin[1] - r), int(origin[1] + r+1)):
             if (math.pow ((x - origin[0]) , 2) + math.pow ((y - origin[1]), 2) <= r ** 2):
                 temp.append([x,y])
     return temp
@@ -107,8 +110,8 @@ def move(player, A, playerLocations, width, height, epsilon, radius = 1, speed =
 field = getLocations(width, height)
 playerLocations = getStartLoc(field, players)
 A = [0, 45, 90, 135, 180, 225, 270, 315]
-payoffs = [[0 for x in range(players)] for y in range(players)] #2 dimensional array; [player][move] = total payoff for player for a particular move
-plays = [[0 for x in range(players)] for y in range(players)] #2 dimensional array; [player][move] = total times player has played a move
+payoffs = [[0 for x in range(len(A))] for y in range(players)] #2 dimensional array; [player][move] = total payoff for player for a particular move
+plays = [[0 for x in range(len(A))] for y in range(players)] #2 dimensional array; [player][move] = total times player has played a move
 epsilon = 0.1
 #delta = 1
 average_payoffs = [[[] for x in range(players)] for y in range(players)] #2d array, but now for every timestep
@@ -132,7 +135,7 @@ while i < 100000:
     for player in playerLocations:
         move(player, A, playerLocations, height, width, epsilon)
 
-    for n in range(players): #for each angle
+    for n in range(len(A)): #for each angle
         average = 0
         for m in range(players): #for each player
             average += payoffs[m][n]      # add [player][move] payoff to average
@@ -164,7 +167,7 @@ labels = []
 
 for i in range(players):
     plt.plot(test[i])
-    labels.append('Angle: ' + str(A[i]) + '°')
+    labels.append('Angle: ' + str(A[i]) + '°'.decode("utf8"))
 
 plt.ylabel('Average payoff over all players at time t')
 plt.legend(labels, ncol=players,  loc=3, bbox_to_anchor=(0., 1.02, 1., .102), mode="expand", borderaxespad=0.)
