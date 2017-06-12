@@ -91,17 +91,6 @@ def move(player, A, playerLocations, width, height, epsilon, radius = 1, speed =
             #print('Collision; didnt move')
             return
 
-    #x,y = mapToInBounds(x,y)
-    #newLoc = [x,y]
-
-#    print(player)
-#    print('current location: ')
-#    print(currentLoc)
-#    print ('move: ')
-#    print(angle)
-#    print('new location: ')
-#    print(newLoc)
-
     payoffs[player - 1][A.index(angle)] += 1
     playerLocations[player] = newLoc
     return
@@ -141,14 +130,6 @@ while i < 100000:
             average += payoffs[m][n]      # add [player][move] payoff to average
         average = round(average/players)
         test[n].append(average)
-    #     for m in range(players):
-    #         total_plays = plays[n][m]
-    #         if total_plays is not 0:
-    #             #average_payoffs[n][m].append(payoffs[n][m]/plays[n][m])
-    #             # print(average_payoffs[xx][yy])
-    #         else:
-    #             #average_payoffs[n][m].append(payoffs[n][m])
-    #             # print(average_payoffs[xx][yy])
     i += 1
 
 print("\n")
@@ -172,24 +153,3 @@ for i in range(len(A)):
 plt.ylabel('Average payoff over all players at time t')
 plt.legend(labels, ncol=players,  loc=3, bbox_to_anchor=(0., 1.02, 1., .102), mode="expand", borderaxespad=0.)
 plt.show()
-
-#################################################
-
-
-
-# for x in range(-10, 10, 1):
-#     list.append(x)
-#
-# for y in list:
-#     if (y > w):
-#         y = y % w
-#     if (y < 1):
-#         y = w + (y % -w)
-#
-#     if (y > h):
-#         y = y % h
-#     if (y < 1):
-#         y = h + (y % -h)
-
-# print(list)
-# print(list2)
